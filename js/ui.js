@@ -128,13 +128,13 @@ function renderFilterDropdowns() {
     '<option value="">Alle categorieën</option>' +
     cats.map(c => `<option value="${c}"${c === curCat ? ' selected' : ''}>${c}</option>`).join('');
 
-  // Sorteerknop label
+  // Sorteerknop label + richting
   const { field, dir } = getSortState();
   const labels = { name: 'Naam', location: 'Locatie', category: 'Categorie', updatedAt: 'Bijgewerkt', createdAt: 'Toegevoegd' };
   $('sortLabel').textContent = labels[field] || 'Naam';
   $('sortDir').innerHTML = dir === 'asc'
-    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`
-    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:block"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:block"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
 }
 
 // ── ITEM GRID ──
@@ -374,8 +374,17 @@ function renderCategoriesSettings() {
 
 // ── SORT DROPDOWN ──
 function renderSortDropdown() {
-  const { field } = getSortState();
-  $('sortMenu').innerHTML = [
+  const { field, dir } = getSortState();
+  const dirLabel = dir === 'asc' ? 'Oplopend' : 'Aflopend';
+  const dirIcon  = dir === 'asc'
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:block"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:block"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>`;
+
+  const dirBtn = `<button class="sort-option sort-dir-toggle" onclick="onToggleSortDir()">
+    ${dirIcon} ${dirLabel}
+  </button><div style="height:1px;background:var(--border);margin:.25rem 0"></div>`;
+
+  $('sortMenu').innerHTML = dirBtn + [
     { value: 'name',      label: 'Naam' },
     { value: 'location',  label: 'Locatie' },
     { value: 'category',  label: 'Categorie' },

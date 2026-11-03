@@ -27,6 +27,13 @@ function onSetSort(field) {
   $('sortDropdown').classList.remove('open');
 }
 
+function onToggleSortDir() {
+  const s = loadSettings();
+  s.sortDir = s.sortDir === 'asc' ? 'desc' : 'asc';
+  saveSettings(s);
+  renderAll();
+}
+
 // ── LOCATIE ACTIES (vanuit instellingen) ──
 function onSaveLocation(id) {
   const name  = $(`loc-name-${id}`)?.value?.trim();
@@ -91,14 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
     $('sortDropdown').classList.toggle('open');
   });
   document.addEventListener('click', () => $('sortDropdown').classList.remove('open'));
-
-  // Sorteer richting omdraaien (pijltje naast label)
-  $('sortDirBtn').addEventListener('click', () => {
-    const s = loadSettings();
-    s.sortDir = s.sortDir === 'asc' ? 'desc' : 'asc';
-    saveSettings(s);
-    renderAll();
-  });
 
   // Item modal
   $('itemModalClose').addEventListener('click',  () => closeModal('itemModal'));

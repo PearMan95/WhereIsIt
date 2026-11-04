@@ -204,9 +204,11 @@ function renderPackModal() {
 
   if (!list.length) {
     el.innerHTML = `<p style="color:var(--text-muted);font-size:.9rem;text-align:center;padding:1rem">Geen items op de inpaklijst.</p>`;
-    $('moveAllBtn').style.display = 'none';
+    $('moveAllBtn').style.display  = 'none';
+    $('clearPackBtn').style.display = 'none';
     return;
   }
+  $('clearPackBtn').style.display = '';
 
   $('moveAllBtn').style.display = '';
 
@@ -434,14 +436,25 @@ function showToast(message, undoFn) {
     undoBtn.style.display = 'none';
   }
 
-  el.classList.add('show');
+  _showToastEl();
   if (_toastTimer) clearTimeout(_toastTimer);
   _toastTimer = setTimeout(hideToast, 4000);
 }
 
 function hideToast() {
-  $('toast').classList.remove('show');
+  const el = $('toast');
+  el.classList.remove('show');
+  // Verberg volledig na de transitie zodat er geen randje overblijft
+  el.addEventListener('transitionend', () => {
+    if (!el.classList.contains('show')) el.style.visibility = 'hidden';
+  }, { once: true });
   if (_toastTimer) { clearTimeout(_toastTimer); _toastTimer = null; }
+}
+
+function _showToastEl() {
+  const el = $('toast');
+  el.style.visibility = '';
+  el.classList.add('show');
 }
 
 // ── LOCATIE-POPUP (bij pakketje-knop op kaart) ──
@@ -454,11 +467,15 @@ function showPackPopup(itemId, anchorEl) {
   const entry   = getPackEntry(itemId);
   const inPack  = !!entry;
 
+  const item = getItemById(itemId);
+  // Filter de huidige locatie van het item eruit: daar naartoe verplaatsen heeft geen zin
+  const destinations = locs.filter(l => l.id !== item?.locationId);
+
   const popup = document.createElement('div');
   popup.className = 'pack-popup';
   popup.innerHTML = `
     <div class="pack-popup-title">${inPack ? 'Bestemming wijzigen' : 'Toevoegen aan inpaklijst'}</div>
-    ${locs.map(l => `
+    ${destinations.map(l => `
       <button class="pack-popup-opt${entry?.destinationId === l.id ? ' active' : ''}" onclick="onPickPackDest('${itemId}','${l.id}')">
         <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${l.color};margin-right:.4rem;flex-shrink:0"></span>
         ${l.name}

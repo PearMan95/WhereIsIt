@@ -62,17 +62,27 @@ function onUpdatePackDest(itemId, destinationId) {
 
 // Verplaats alle items naar hun bestemming
 function onMoveAll() {
+  // Snapshot van items en inpaklijst vóór de actie, voor undo
+  const itemsSnapshot   = JSON.stringify(getItems());
+  const packSnapshot    = JSON.stringify(getPackList());
+
   const { moved, missed } = moveAllPackItems();
   const s = loadSettings();
   if (s.clearPackAfterMove) clearPackList();
   renderAll();
   renderPackModal();
 
-  if (missed.length) {
-    showToast(`${moved} item(s) verplaatst, ${missed.length} zonder bestemming overgeslagen.`);
-  } else {
-    showToast(`${moved} item(s) verplaatst naar hun bestemming.`);
-  }
+  const msg = missed.length
+    ? `${moved} item(s) verplaatst, ${missed.length} zonder bestemming overgeslagen.`
+    : `${moved} item(s) verplaatst naar hun bestemming.`;
+
+  showToast(msg, () => {
+    // Herstel items en inpaklijst naar de toestand van vóór de actie
+    saveItems(JSON.parse(itemsSnapshot));
+    savePackList(JSON.parse(packSnapshot));
+    renderAll();
+    renderPackModal();
+  });
 }
 
 function onOpenHistory(itemId) {

@@ -128,12 +128,12 @@ Alle iconen zijn gedefinieerd in het `ICONS`-object bovenin `script.js`. Vervang
 ## Toekomstige plannen
 
 - [ ] Meerdere thema's (licht / donker / kleurkeuze)
-- [ ] Meer dan twee locaties ondersteunen
+- [x] Meer dan twee locaties ondersteunen
 - [ ] Cloudopslag zodat data op meerdere apparaten beschikbaar is
-- [ ] Exporteren van de itemlijst (bijv. als PDF of CSV)
+- [x] Exporteren van de itemlijst (bijv. als PDF of CSV)
 - [ ] Native mobiele app (iOS / Android) op basis van deze webversie
-- [ ] Sorteermogelijkheden (op naam, datum toegevoegd, categorie)
-- [ ] Aangepaste categorieën toevoegen
+- [x] Sorteermogelijkheden (op naam, datum toegevoegd, categorie)
+- [x] Aangepaste categorieën toevoegen
 
 ---
 

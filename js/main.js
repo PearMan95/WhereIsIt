@@ -2,11 +2,77 @@
 // Event listeners en initialisatie. Alles komt hier samen.
 
 // ── ITEM ACTIES (aangeroepen vanuit de kaarten via onclick) ──
-function onTogglePack(itemId) {
-  togglePackItem(itemId);
+
+// Opent de locatie-popup bij de pakketje-knop
+function onTogglePackPopup(event, itemId) {
+  event.stopPropagation();
+  const wrap = event.currentTarget.closest('.pack-popup-wrap');
+  if (_activePopup?.itemId === itemId) { closePackPopup(); return; }
+  showPackPopup(itemId, wrap);
+}
+
+// Gebruiker kiest een bestemming in de popup
+function onPickPackDest(itemId, destinationId) {
+  const wasInList = isInPackList(itemId);
+  const prevEntry = wasInList ? { ...getPackEntry(itemId) } : null;
+
+  addToPackList(itemId, destinationId);
+  closePackPopup();
   renderAll();
-  // Als de packmodal open is, ook die updaten
+
+  const destName = getLocationName(destinationId);
+  const msg = wasInList
+    ? `Bestemming gewijzigd naar ${destName}`
+    : `Toegevoegd aan inpaklijst (naar ${destName})`;
+
+  showToast(msg, () => {
+    if (!wasInList) {
+      removeFromPackList(itemId);
+    } else if (prevEntry) {
+      addToPackList(itemId, prevEntry.destinationId);
+    }
+    renderAll();
+    if ($('packModal').classList.contains('open')) renderPackModal();
+  });
+
   if ($('packModal').classList.contains('open')) renderPackModal();
+}
+
+// Verwijdert item uit inpaklijst (vanuit modal of popup)
+function onRemoveFromPack(itemId) {
+  const prevEntry = getPackEntry(itemId);
+  removeFromPackList(itemId);
+  closePackPopup();
+  renderAll();
+  if ($('packModal').classList.contains('open')) renderPackModal();
+
+  showToast('Verwijderd uit inpaklijst', () => {
+    if (prevEntry) addToPackList(prevEntry.itemId, prevEntry.destinationId);
+    renderAll();
+    if ($('packModal').classList.contains('open')) renderPackModal();
+  });
+}
+
+// Update bestemming vanuit de dropdown in de inpaklijst-modal
+function onUpdatePackDest(itemId, destinationId) {
+  updatePackDestination(itemId, destinationId || null);
+  if ($('packModal').classList.contains('open')) renderPackModal();
+  renderPackBanner();
+}
+
+// Verplaats alle items naar hun bestemming
+function onMoveAll() {
+  const { moved, missed } = moveAllPackItems();
+  const s = loadSettings();
+  if (s.clearPackAfterMove) clearPackList();
+  renderAll();
+  renderPackModal();
+
+  if (missed.length) {
+    showToast(`${moved} item(s) verplaatst, ${missed.length} zonder bestemming overgeslagen.`);
+  } else {
+    showToast(`${moved} item(s) verplaatst naar hun bestemming.`);
+  }
 }
 
 function onOpenHistory(itemId) {
@@ -113,8 +179,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Pack modal
   $('packModalClose').addEventListener('click',  () => closeModal('packModal'));
   $('packModalClose2').addEventListener('click', () => closeModal('packModal'));
-  $('clearPackBtn').addEventListener('click',  () => { clearPackList(); renderAll(); closeModal('packModal'); });
+  $('clearPackBtn').addEventListener('click',  () => { clearPackList(); renderAll(); renderPackModal(); });
   $('clearPackBannerBtn').addEventListener('click', () => { clearPackList(); renderAll(); });
+  $('moveAllBtn').addEventListener('click', onMoveAll);
+  $('toastClose').addEventListener('click', hideToast);
+
+  // Instelling: inpaklijst leegmaken na verplaatsen
+  $('clearPackAfterMove').addEventListener('change', e => {
+    const s = loadSettings();
+    s.clearPackAfterMove = e.target.checked;
+    saveSettings(s);
+  });
 
   // Geschiedenis modal
   $('historyModalClose').addEventListener('click', () => closeModal('historyModal'));

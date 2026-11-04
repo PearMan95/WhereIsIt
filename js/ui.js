@@ -177,7 +177,9 @@ function renderGrid() {
             <span class="tag tag-cat">${ic(catIconName, 'sm')} ${item.category}</span>
           </div>
           <div class="card-actions">
-            <button class="icon-btn${inPack ? ' pack-active' : ''}" title="Inpaklijst" onclick="onTogglePack('${item.id}')">${ICONS.package}</button>
+            <div class="pack-popup-wrap">
+              <button class="icon-btn${inPack ? ' pack-active' : ''}" title="Inpaklijst" onclick="onTogglePackPopup(event,'${item.id}')">${ICONS.package}</button>
+            </div>
             <button class="icon-btn" title="Geschiedenis" onclick="onOpenHistory('${item.id}')">${ICONS.history}</button>
             <button class="icon-btn" title="Bewerken" onclick="onOpenEdit('${item.id}')">${ICONS.edit}</button>
             <button class="icon-btn" title="Verwijderen" onclick="onOpenDelete('${item.id}')">${ICONS.trash}</button>
@@ -198,20 +200,39 @@ function renderPackBanner() {
 function renderPackModal() {
   const list  = getPackList();
   const el    = $('packList');
+  const locs  = getLocations();
+
   if (!list.length) {
     el.innerHTML = `<p style="color:var(--text-muted);font-size:.9rem;text-align:center;padding:1rem">Geen items op de inpaklijst.</p>`;
+    $('moveAllBtn').style.display = 'none';
     return;
   }
-  el.innerHTML = list.map(id => {
-    const item = getItemById(id);
+
+  $('moveAllBtn').style.display = '';
+
+  el.innerHTML = list.map(entry => {
+    const item = getItemById(entry.itemId);
     if (!item) return '';
     const catIconName = getCatIcon(item.category);
+    const locOpts = locs.map(l =>
+      `<option value="${l.id}"${l.id === entry.destinationId ? ' selected' : ''}>${l.name}</option>`
+    ).join('');
+
     return `
       <div class="pack-item">
         <span class="pack-item-icon">${ICONS[catIconName] || ICONS.box}</span>
-        <span class="pack-item-name">${item.name}</span>
-        <span class="pack-item-loc">${getLocationName(item.locationId)}</span>
-        <button class="icon-btn" title="Verwijderen uit lijst" onclick="onTogglePack('${item.id}')">${ICONS.close}</button>
+        <div class="pack-item-info">
+          <span class="pack-item-name">${item.name}</span>
+          <span class="pack-item-from">Nu: ${getLocationName(item.locationId)}</span>
+        </div>
+        <div class="pack-item-dest">
+          <span class="pack-dest-arrow">${ICONS.chevron}</span>
+          <select class="pack-dest-select" onchange="onUpdatePackDest('${item.id}', this.value)">
+            <option value="">Kies bestemming</option>
+            ${locOpts}
+          </select>
+        </div>
+        <button class="icon-btn" title="Verwijderen uit lijst" onclick="onRemoveFromPack('${item.id}')">${ICONS.close}</button>
       </div>`;
   }).join('');
 }
@@ -347,6 +368,8 @@ function confirmDeleteItem() {
 function openSettingsModal() {
   renderLocationsSettings();
   renderCategoriesSettings();
+  const s = loadSettings();
+  $('clearPackAfterMove').checked = s.clearPackAfterMove || false;
   openModal('settingsModal');
 }
 
@@ -394,6 +417,72 @@ function renderSortDropdown() {
     <button class="sort-option${field === o.value ? ' active' : ''}" onclick="onSetSort('${o.value}')">
       ${o.label}
     </button>`).join('');
+}
+
+// ── TOAST ──
+let _toastTimer = null;
+
+function showToast(message, undoFn) {
+  const el = $('toast');
+  $('toastMsg').textContent = message;
+  const undoBtn = $('toastUndo');
+
+  if (undoFn) {
+    undoBtn.style.display = '';
+    undoBtn.onclick = () => { undoFn(); hideToast(); };
+  } else {
+    undoBtn.style.display = 'none';
+  }
+
+  el.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(hideToast, 4000);
+}
+
+function hideToast() {
+  $('toast').classList.remove('show');
+  if (_toastTimer) { clearTimeout(_toastTimer); _toastTimer = null; }
+}
+
+// ── LOCATIE-POPUP (bij pakketje-knop op kaart) ──
+let _activePopup = null;
+
+function showPackPopup(itemId, anchorEl) {
+  closePackPopup();
+
+  const locs    = getLocations();
+  const entry   = getPackEntry(itemId);
+  const inPack  = !!entry;
+
+  const popup = document.createElement('div');
+  popup.className = 'pack-popup';
+  popup.innerHTML = `
+    <div class="pack-popup-title">${inPack ? 'Bestemming wijzigen' : 'Toevoegen aan inpaklijst'}</div>
+    ${locs.map(l => `
+      <button class="pack-popup-opt${entry?.destinationId === l.id ? ' active' : ''}" onclick="onPickPackDest('${itemId}','${l.id}')">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${l.color};margin-right:.4rem;flex-shrink:0"></span>
+        ${l.name}
+      </button>`).join('')}
+    ${inPack ? `<div class="pack-popup-sep"></div>
+      <button class="pack-popup-opt pack-popup-remove" onclick="onRemoveFromPack('${itemId}')">
+        <span class="ic ic-sm">${ICONS.close}</span> Verwijderen uit lijst
+      </button>` : ''}
+  `;
+
+  anchorEl.appendChild(popup);
+  _activePopup = { el: popup, itemId };
+
+  // Sluit popup bij klik buiten
+  setTimeout(() => {
+    document.addEventListener('click', closePackPopup, { once: true });
+  }, 0);
+}
+
+function closePackPopup() {
+  if (_activePopup) {
+    _activePopup.el.remove();
+    _activePopup = null;
+  }
 }
 
 // ── ALLES OPNIEUW RENDEREN ──

@@ -161,6 +161,19 @@ function onDeleteCategory(name) {
 document.addEventListener('DOMContentLoaded', () => {
   initModalBackdrops();
   initImgUpload();
+  initTheme();
+
+  // Thema wisselen
+  $('themeToggleBtn').addEventListener('click', toggleTheme);
+
+  // Accentkleur kiezen
+  $('accentColorInput').addEventListener('input', e => {
+    const color = e.target.value;
+    applyAccentColor(color);
+    const s = loadSettings();
+    s.accentColor = color;
+    saveSettings(s);
+  });
 
   // Topbar knoppen
   $('openAddBtn').addEventListener('click', openItemModalAdd);

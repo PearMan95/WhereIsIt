@@ -8,6 +8,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <!-- Anti-flicker: thema toepassen vóór de pagina rendert -->
+  <script>
+    (function() {
+      try {
+        const s = JSON.parse(localStorage.getItem('wii_settings') || '{}');
+        if (s.theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        if (s.accentColor) document.documentElement.style.setProperty('--accent', s.accentColor);
+      } catch(e) {}
+    })();
+  </script>
 </head>
 <body>
 
@@ -15,6 +25,15 @@
 <header class="topbar">
   <div class="topbar-logo">Where<span>Is</span>It</div>
   <div class="topbar-actions">
+    <!-- Accentkleur picker -->
+    <div class="accent-picker-wrap" title="Accentkleur kiezen">
+      <div class="accent-picker-btn" id="accentPickerBtn"></div>
+      <input type="color" id="accentColorInput" />
+    </div>
+    <!-- Licht/donker schakelaar -->
+    <button class="theme-btn" id="themeToggleBtn" title="Thema wisselen">
+      <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
     <button class="btn btn-ghost btn-sm" id="openPackingBtn">
       <span class="ic"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
       Inpaklijst <span class="pack-count" id="packCount">0</span>
@@ -234,6 +253,7 @@
 
 <!-- JS: volgorde is belangrijk, afhankelijkheden eerst -->
 <script src="js/storage.js"></script>
+<script src="js/theme.js"></script>
 <script src="js/locations.js"></script>
 <script src="js/categories.js"></script>
 <script src="js/items.js"></script>

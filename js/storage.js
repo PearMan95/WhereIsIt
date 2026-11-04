@@ -20,8 +20,11 @@ const DEFAULT_CATEGORIES = [
 ];
 
 const DEFAULT_SETTINGS = {
-  sortField: 'name',
-  sortDir:   'asc',
+  sortField:          'name',
+  sortDir:            'asc',
+  clearPackAfterMove: false,
+  theme:              'light',
+  accentColor:        '#1a2e4a',
 };
 
 function loadJSON(key, fallback) {

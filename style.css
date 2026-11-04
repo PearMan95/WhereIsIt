@@ -1,14 +1,38 @@
 /* ── THEME TOKENS ── */
 :root {
+  /* Licht thema (standaard) */
   --bg:         #f5f6f8;
   --surface:    #ffffff;
+  --surface-2:  #f0f1f4;
   --border:     #e2e4e9;
   --text:       #1c1c1e;
   --text-muted: #6b7280;
   --shadow:     0 1px 4px rgba(0,0,0,.08);
-  --accent:     #1a2e4a;
+
+  /* Accentkleur — aanpasbaar via kleurpicker */
+  --accent:         #1a2e4a;
+  --accent-contrast: #ffffff; /* tekst op accentkleur achtergrond */
+
   --radius:     10px;
   --radius-sm:  6px;
+}
+
+/* ── DONKER THEMA ── */
+[data-theme="dark"] {
+  --bg:         #0f1117;
+  --surface:    #1a1d27;
+  --surface-2:  #22263a;
+  --border:     #2e3348;
+  --text:       #e8eaf0;
+  --text-muted: #8b92a8;
+  --shadow:     0 1px 4px rgba(0,0,0,.35);
+}
+
+/* Zorgt dat inputs en selects in donker thema ook de juiste kleuren krijgen */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  color-scheme: dark;
 }
 
 /* ── RESET ── */
@@ -58,7 +82,7 @@ input, select, textarea { font-family: inherit; }
   display: inline-flex; align-items: center; justify-content: center;
   color: var(--text-muted); transition: background .15s, color .15s; flex-shrink: 0;
 }
-.icon-btn:hover { background: var(--bg); color: var(--text); }
+.icon-btn:hover { background: var(--surface-2); color: var(--text); }
 .icon-btn.pack-active { color: var(--accent); }
 .icon-btn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -99,7 +123,7 @@ input, select, textarea { font-family: inherit; }
   padding: .55rem .9rem; font-size: .875rem; color: var(--text);
   transition: background .1s;
 }
-.sort-option:hover  { background: var(--bg); }
+.sort-option:hover  { background: var(--surface-2); }
 .sort-option.active { font-weight: 600; color: var(--accent); }
 .sort-dir-toggle { display: flex; align-items: center; gap: .5rem; color: var(--text-muted); font-size: .82rem; }
 
@@ -135,7 +159,7 @@ input, select, textarea { font-family: inherit; }
 }
 .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
 .card-img {
-  width: 100%; height: 150px; background: var(--bg);
+  width: 100%; height: 150px; background: var(--surface-2);
   display: flex; align-items: center; justify-content: center; color: var(--text-muted);
 }
 .card-img img { width: 100%; height: 100%; object-fit: cover; }
@@ -154,7 +178,7 @@ input, select, textarea { font-family: inherit; }
   padding: .2rem .55rem; border-radius: 99px; font-size: .74rem; font-weight: 500;
 }
 .tag svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-.tag-cat { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+.tag-cat { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
 
 /* ── EMPTY STATE ── */
 .empty { grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: var(--text-muted); }
@@ -216,7 +240,7 @@ input, select, textarea { font-family: inherit; }
   border: 2px dashed var(--border); border-radius: var(--radius-sm);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: .4rem; color: var(--text-muted); font-size: .84rem;
-  cursor: pointer; overflow: hidden; position: relative; background: var(--bg);
+  cursor: pointer; overflow: hidden; position: relative; background: var(--surface-2);
 }
 .img-preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .img-preview input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
@@ -226,7 +250,7 @@ input, select, textarea { font-family: inherit; }
 .pack-list { display: flex; flex-direction: column; gap: .5rem; max-height: 50vh; overflow-y: auto; }
 .pack-item {
   display: flex; align-items: center; gap: .75rem;
-  padding: .6rem .75rem; background: var(--bg); border-radius: var(--radius-sm);
+  padding: .6rem .75rem; background: var(--surface-2); border-radius: var(--radius-sm);
 }
 .pack-item-icon { color: var(--text-muted); display: flex; }
 .pack-item-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
@@ -237,7 +261,7 @@ input, select, textarea { font-family: inherit; }
 .history-list { display: flex; flex-direction: column; gap: .5rem; max-height: 50vh; overflow-y: auto; }
 .history-item {
   display: flex; align-items: flex-start; gap: .6rem;
-  padding: .6rem .75rem; background: var(--bg); border-radius: var(--radius-sm);
+  padding: .6rem .75rem; background: var(--surface-2); border-radius: var(--radius-sm);
   font-size: .875rem; color: var(--text-muted);
 }
 .history-item .ic { margin-top: 1px; flex-shrink: 0; }
@@ -253,6 +277,28 @@ input, select, textarea { font-family: inherit; }
 }
 .settings-add-row { display: flex; gap: .5rem; }
 .settings-add-row .form-input { flex: 1; }
+
+/* ── THEMA-KNOP ── */
+.theme-btn {
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  transition: background .15s, color .15s;
+}
+.theme-btn:hover { background: var(--surface-2); }
+.theme-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Accentkleur-picker wrapper */
+.accent-picker-wrap { position: relative; width: 34px; height: 34px; }
+.accent-picker-wrap input[type=color] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+.accent-picker-btn {
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--accent);
+  pointer-events: none; display: block;
+}
 
 /* ── IM/EXPORT ── */
 .export-row { display: flex; gap: .5rem; flex-wrap: wrap; }
@@ -300,7 +346,7 @@ input, select, textarea { font-family: inherit; }
   padding: .5rem .75rem; font-size: .875rem; color: var(--text);
   transition: background .1s; cursor: pointer;
 }
-.pack-popup-opt:hover { background: var(--bg); }
+.pack-popup-opt:hover { background: var(--surface-2); }
 .pack-popup-opt.active { font-weight: 600; color: var(--accent); }
 .pack-popup-sep { height: 1px; background: var(--border); margin: .25rem 0; }
 .pack-popup-remove { color: #dc2626; }
